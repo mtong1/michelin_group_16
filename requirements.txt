@@ -2,4 +2,3 @@ streamlit
 openai
 langchain
 langchain_groq
-os
