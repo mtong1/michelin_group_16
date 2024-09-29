@@ -9,7 +9,7 @@ import os
 
 st.title('🦜🔗 Quickstart App')
 
-groq_api_key = st.sidebar.text_input('OpenAI API Key')
+groq_api_key = st.sidebar.text_input('Groq API Key')
 
 def generate_response(input_text):
     if groq_api_key:
