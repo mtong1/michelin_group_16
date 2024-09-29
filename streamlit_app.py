@@ -1,5 +1,6 @@
 import streamlit as st
 from langchain_groq import ChatGroq
+from langchain_core.messages import HumanMessage
 import getpass
 import os
 
@@ -21,7 +22,7 @@ def generate_response(input_text):
             max_retries=2
         )
         # Call the model and display the result
-        response = llm(input_text)
+        response = llm([HumanMessage(content=input_text)])
         st.info(response)
     else:
         st.warning('Please enter your Groq API key!', icon='⚠')
