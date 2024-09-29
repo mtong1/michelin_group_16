@@ -14,7 +14,7 @@ def generate_response(input_text):
     if groq_api_key:
         os.environ["GROQ_API_KEY"] = groq_api_key
         llm = ChatGroq(
-            model="mixtral-8x7b-32768",
+            model="llama-3.1-70b-versatile",
             temperature=0,
             max_tokens=None,
             timeout=None,
