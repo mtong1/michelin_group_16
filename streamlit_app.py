@@ -26,7 +26,7 @@ def generate_response(input_text):
         # print (type(response))
         st.info(response )
         st.info(type(response))
-        st.info(type(response.content))
+        st.info((response.content))
 
     else:
         st.warning('Please enter your Groq API key!', icon='⚠')
