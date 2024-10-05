@@ -24,9 +24,8 @@ def generate_response(input_text):
         # Call the model and display the result
         response = llm([HumanMessage(content=input_text)])
         # print (type(response))
-        st.info(response )
-        st.info(type(response))
         st.info((response.content))
+        st.info(type(response))
 
     else:
         st.warning('Please enter your Groq API key!', icon='⚠')
