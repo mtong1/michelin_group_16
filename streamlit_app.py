@@ -24,7 +24,8 @@ def generate_response(input_text):
         # Call the model and display the result
         response = llm([HumanMessage(content=input_text)])
         # print (type(response))
-        st.info(response + type(response))
+        st.info(response )
+        st.info(type(response))
 
     else:
         st.warning('Please enter your Groq API key!', icon='⚠')
@@ -38,4 +39,5 @@ with st.form('my_form'):
 #     st.warning('Please enter your Groq API key!', icon='⚠')
 #   if submitted and groq_api_key.startswith('sk-'):
     # generate_response(text)
+
 
