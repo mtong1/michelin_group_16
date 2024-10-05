@@ -41,6 +41,7 @@ def csv_agent():
     "data/Crash data_LA_county.csv",
     verbose=True,
     agent_type=AgentType.OPENAI_FUNCTIONS,
+    allow_dangerous_code=True
 )
     response = agent.run("how many rows and columns")
     st.info(response)
