@@ -35,9 +35,9 @@ def generate_response(input_text):
         st.warning('Please enter your Groq API key!', icon='⚠')
 
 def csv_agent():
-    os.environ["OPEN_API_KEY"] = openai_api_key
+    os.environ["OPENAI_API_KEY"] = openai_api_key
     agent = create_csv_agent(
-    ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613", ),
+    ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613" ),
     "data/Crash data_LA_county.csv",
     verbose=True,
     agent_type=AgentType.OPENAI_FUNCTIONS,
