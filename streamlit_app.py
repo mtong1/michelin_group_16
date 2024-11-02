@@ -10,7 +10,7 @@ from langchain_ollama import ChatOllama
 
 # if "GROQ_API_KEY" not in os.environ:
 #     os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
-llama_model = ChatOllama(model="llama3.2")
+llama_model = ChatOllama(model="llama3.2", temperature=0,)
 
 st.title('🦜🔗 Quickstart App')
 
@@ -28,9 +28,11 @@ if uploaded_file is not None:
     csv_to_string = data.head().to_string()
 
     st.write(csv_to_string)
-    prompt = f"Using {csv_to_string} which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns"
-    response = llama_model(prompt)
-    st.write(response)
+    prompt = "Using " + {csv_to_string} + " which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns"
+    # response = llama_model(prompt)
+    result = llama_model.invoke(
+    prompt)
+    st.write(result)
 
 with st.form('my_form'):
   text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
