@@ -15,9 +15,12 @@ st.title('🦜🔗 Quickstart App')
 
 uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
 
+if uploaded_file is not None:
+    st.write("File uploaded successfully!")
+
 with st.form('my_form'):
   text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
   submitted = st.form_submit_button('Submit')
-  if submitted:
-    generate_response(text)
+#   if submitted:
+#     generate_response(text)
 
