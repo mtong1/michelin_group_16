@@ -2,7 +2,7 @@ import streamlit as st
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
 import getpass
-import os
+import pandas as pd
 from langchain.agents.agent_types import AgentType
 from langchain_experimental.agents.agent_toolkits import create_csv_agent
 from langchain_openai import ChatOpenAI, OpenAI
@@ -17,6 +17,13 @@ uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
 
 if uploaded_file is not None:
     st.write("File uploaded successfully!")
+    data = pd.read_csv(uploaded_file)
+    st.write("Here's a preview of your data:")
+    st.write(data.head())
+    csv_to_string = data.head().to_string()
+
+    st.write(csv_to_string)
+
 
 with st.form('my_form'):
   text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
