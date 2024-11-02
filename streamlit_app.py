@@ -28,10 +28,9 @@ if uploaded_file is not None:
     csv_to_string = data.head().to_string()
 
     st.write(csv_to_string)
-    prompt = "Using " + {csv_to_string} + " which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns"
+    prompt = f"Using {csv_to_string} which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns."
     # response = llama_model(prompt)
-    result = llama_model.invoke(
-    prompt)
+    result = llama_model.invoke(prompt)
     st.write(result)
 
 with st.form('my_form'):
