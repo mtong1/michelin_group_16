@@ -3,3 +3,11 @@ openai
 langchain
 langchain_groq
 langchain_core
+pandas
+langchain_ollama
+langchain_community
+
+matplotlib
+geopandas
+
+ollama

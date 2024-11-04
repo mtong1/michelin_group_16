@@ -1,44 +1,37 @@
 import streamlit as st
-from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage
-import getpass
-import os
+from parse_csv import parse_csv
+from query_llama import initialize_llama_model, query_llama_for_visualization
+from visualization import generate_visualization
+import sys
+print("Python executable:", sys.executable)
+print("Python version:", sys.version)
 
-# if "GROQ_API_KEY" not in os.environ:
-#     os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
+st.title("Data Query Tool")
 
-st.title('🦜🔗 Quickstart App')
+# File uploader in Streamlit to select a CSV file
+uploaded_file = st.file_uploader("Choose a CSV file")
 
-groq_api_key = st.sidebar.text_input('Groq API Key')
+if uploaded_file:
+    # Step 1: Parse the CSV
+    parsed_data, data_df = parse_csv(uploaded_file)
 
-def generate_response(input_text):
-    if groq_api_key:
-        os.environ["GROQ_API_KEY"] = groq_api_key
-        llm = ChatGroq(
-            model="llama-3.1-70b-versatile",
-            temperature=0,
-            max_tokens=None,
-            timeout=None,
-            max_retries=2
-        )
-        # Call the model and display the result
-        response = llm([HumanMessage(content=input_text)])
-        # print (type(response))
-        st.info(response )
-        st.info(type(response))
-        st.info((response.content))
+    if parsed_data:
+        # Step 2: Initialize the Llama model
+        model = initialize_llama_model()
 
+        # Step 3: User can enter a question and generate visualization type suggestion
+        user_question = st.text_input("Ask a question about the data:")
+        if st.button("Submit") and user_question:
+            visualization_type = query_llama_for_visualization(parsed_data, model)
+            #Outputting type suggestion onto Streamlit to make it easier to see what model is thinking
+            #Can always get rid of later
+            st.write(f"Suggested Visualization Type: {visualization_type}")
+
+            # Step 4: Generate and display the visualization
+            st.write("Generating Visualization...")
+            generate_visualization(data_df, visualization_type)
+        else:
+            st.warning("Please enter a question to proceed.")
     else:
-        st.warning('Please enter your Groq API key!', icon='⚠')
-
-with st.form('my_form'):
-  text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
-  submitted = st.form_submit_button('Submit')
-  if submitted:
-    generate_response(text)
-#   if not groq_api_key.startswith(''):
-#     st.warning('Please enter your Groq API key!', icon='⚠')
-#   if submitted and groq_api_key.startswith('sk-'):
-    # generate_response(text)
-
+        st.error("Could not parse the CSV file. Please check the format.")
 
