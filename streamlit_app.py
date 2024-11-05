@@ -7,11 +7,13 @@ from langchain.agents.agent_types import AgentType
 from langchain_experimental.agents.agent_toolkits import create_csv_agent
 from langchain_openai import ChatOpenAI, OpenAI
 from langchain_ollama import ChatOllama
+from langchain_community.llms import Ollama
 
 
 # if "GROQ_API_KEY" not in os.environ:
 #     os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
-llama_model = ChatOllama(model="llama3.2", temperature=0,)
+# llama_model = ChatOllama(model="llama3.2", temperature=0,)
+llm = Ollama(model="llama3")
 
 st.title('🦜🔗 Quickstart App')
 
@@ -32,7 +34,7 @@ if uploaded_file is not None:
     prompt = f"Using {csv_to_string} which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns."
     # response = llama_model(prompt)
     messages = [ ("system", "You are a CSV analyser"),  ("human", f"Using {csv_to_string} which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns.")]
-    result = llama_model.invoke(messages)
+    result = llm.invoke(messages)
     st.write(result)
 
 with st.form('my_form'):
