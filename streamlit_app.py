@@ -7,13 +7,13 @@ from langchain.agents.agent_types import AgentType
 from langchain_experimental.agents.agent_toolkits import create_csv_agent
 from langchain_openai import ChatOpenAI, OpenAI
 from langchain_ollama import ChatOllama
-from langchain.llms import Ollama
+from langchain_core.prompts import ChatPromptTemplate
 
 
 # if "GROQ_API_KEY" not in os.environ:
 #     os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
-# llama_model = ChatOllama(model="llama3.2", temperature=0,)
-llm = Ollama(model="llama3.2")
+llama_model = ChatOllama(model="llama3.2", temperature=0)
+
 
 st.title('🦜🔗 Quickstart App')
 
@@ -31,11 +31,26 @@ if uploaded_file is not None:
     csv_to_string = data.head().to_string()
 
     st.write(csv_to_string)
-    prompt = f"Using {csv_to_string} which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns."
-    # response = llama_model(prompt)
-    messages = [ ("system", "You are a CSV analyser"),  ("human", f"Using {csv_to_string} which is a CSV file as a string. Give me the summary of the data, the amount of rows, and columns.")]
-    result = llm.invoke(messages)
-    st.write(result)
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "You are a helpful assistant that translates {input_language} to {output_language}.",
+            ),
+            ("human", "{input}"),
+        ]
+    )
+    chain = prompt | llama_model
+
+
+    st.write(chain.invoke(
+    {
+        "input_language": "English",
+        "output_language": "German",
+        "input": "I love programming.",
+    }
+))
 
 with st.form('my_form'):
   text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
