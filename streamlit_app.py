@@ -7,13 +7,13 @@ from langchain.agents.agent_types import AgentType
 from langchain_experimental.agents.agent_toolkits import create_csv_agent
 from langchain_openai import ChatOpenAI, OpenAI
 from langchain_ollama import ChatOllama
-from langchain_community.llms import Ollama
+from langchain.llms import Ollama
 
 
 # if "GROQ_API_KEY" not in os.environ:
 #     os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
 # llama_model = ChatOllama(model="llama3.2", temperature=0,)
-llm = Ollama(model="llama3")
+llm = Ollama(model="llama3.2")
 
 st.title('🦜🔗 Quickstart App')
 
