@@ -1,61 +1,26 @@
 import streamlit as st
-from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage
-import getpass
-import os
-from langchain.agents.agent_types import AgentType
-from langchain_experimental.agents.agent_toolkits import create_csv_agent
-from langchain_openai import ChatOpenAI, OpenAI
+import pandas as pd
+from langchain_ollama import ChatOllama
+from langchain_experimental.agents import create_pandas_dataframe_agent
 
 # if "GROQ_API_KEY" not in os.environ:
 #     os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
+llama_model = ChatOllama(model="llama3.2", temperature=0)
 
 st.title('🦜🔗 Quickstart App')
 
-groq_api_key = st.sidebar.text_input('Groq API Key')
-openai_api_key = st.sidebar.text_input('openai API Key')
+uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
 
-def generate_response(input_text):
-    if groq_api_key:
-        os.environ["GROQ_API_KEY"] = groq_api_key
-        llm = ChatGroq(
-            model="llama-3.1-70b-versatile",
-            temperature=0,
-            max_tokens=None,
-            timeout=None,
-            max_retries=2
-        )
-        # Call the model and display the result
-        response = llm([HumanMessage(content=input_text)])
-        # print (type(response))
-        st.info((response.content))
-        st.info(type(response))
+if uploaded_file is not None:
+    st.write("File uploaded successfully!")
+    data = pd.read_csv(uploaded_file)
+    st.write("Here's a preview of your data:")
+    st.write(data.head())
 
-    else:
-        st.warning('Please enter your Groq API key!', icon='⚠')
+    agent = create_pandas_dataframe_agent(llama_model, data, verbose=True, allow_dangerous_code=True)
 
-def csv_agent():
-    os.environ["OPENAI_API_KEY"] = openai_api_key
-    agent = create_csv_agent(
-    ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613" ),
-    "data/Crash data_LA_county.csv",
-    verbose=True,
-    agent_type=AgentType.OPENAI_FUNCTIONS,
-    allow_dangerous_code=True
-)
-    response = agent.run("how many rows and columns")
-    st.info(response)
+    user_question= st.text_input("Enter your question here:", "How many rows are there?")
 
-
-with st.form('my_form'):
-  text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
-  submitted = st.form_submit_button('Submit')
-  if submitted:
-    generate_response(text)
-    csv_agent()
-#   if not groq_api_key.startswith(''):
-#     st.warning('Please enter your Groq API key!', icon='⚠')
-#   if submitted and groq_api_key.startswith('sk-'):
-    # generate_response(text)
-
-
+    if st.button('Submit'):
+        response = agent.run(user_question)
+        st.write(response)
