@@ -9,7 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
-library()
+library(here)
+library(ggplot2)
 ```
 
 ## R Markdown
@@ -34,6 +35,93 @@ crash_2019 <-
 unique(crash_2019$YEAR)
 
 write_csv(crash_2019, here("data", "crash_2019.csv"))
+
+crash_2018 <-
+  crash_data %>%
+  filter(YEAR == 2018)
+
+write_csv(crash_2018, here('data', 'crash_2018.csv'))
+
+crash_2020 <-
+  crash_data %>%
+  filter(YEAR == 2020)
+
+write_csv(crash_2020, here('data', 'crash_2020.csv'))
+```
+
+```{r}
+crash_serious <-
+  crash_data %>%
+  filter(SERIOUS_INJURY == 1)
+
+write_csv(crash_serious, here("data", "serious_crash.csv"))
+
+crash_fatal <-
+  crash_data %>%
+  filter(FATAL == 1)
+
+write_csv(crash_fatal, here("data", "fatal_crash.csv"))
+
+crash_none <-
+  crash_data %>%
+  filter(NO_INJURY == 1)
+
+write_csv(crash_none, here("data", "none_crash.csv"))
+
+crash_cyc <-
+  crash_data %>%
+  filter(CYC == 1, YEAR == 2019, FATAL == 1)
+
+write_csv(crash_cyc, here("data", "cyc_crash_2019.csv"))
+
+crash_ped <-
+  crash_data %>%
+  filter(PED == 1, YEAR == 2021, FATAL == 1)
+write_csv(crash_ped, here("data", "ped_crash_2021.csv"))
+
+total_fatal_type <-
+  crash_data %>%
+  filter(FATAL==1) %>%
+  group_by(YEAR) %>%
+  mutate(total_ped = sum(PED ==1, na.rm=TRUE),
+         total_cyc = sum(CYC == 1, na.rm=TRUE),
+         total_veh = sum(VH == 1, na.rm=TRUE)) %>%
+  select(YEAR, total_ped, total_cyc, total_veh) %>%
+  distinct() %>%
+  pivot_longer(cols = starts_with("total"), 
+             names_to = "crash_type", 
+             values_to = "count")
+
+ggplot(data=total_fatal_type, aes(x=YEAR, y=count, fill=crash_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Total Fatal Crashes by Year",
+       x = "Year",
+       y = "Total Crashes",
+       fill = "Crash Type") +
+  theme_minimal()
+```
+```{r}
+tables <-
+  crash_data %>%
+  group_by(YEAR) %>%
+  mutate(total_none = sum(NO_INJURY == 1, na.rm=TRUE),
+         total_minor = sum(MINOR_INJURY == 1, na.rm=TRUE),
+         total_serious = sum(SERIOUS_INJURY == 1, na.rm=TRUE),
+         total_fatal = sum(FATAL == 1, na.rm=TRUE)) %>%
+  select(YEAR, total_none, total_minor, total_serious, total_fatal) %>%
+  distinct() %>%
+  pivot_longer(cols = starts_with("total"), 
+               names_to = "crash_type", 
+               values_to = "count")
+
+ggplot(data=tables, aes(x=YEAR, y=count, fill=crash_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Total Crashes by Year and Severity",
+       x = "Year",
+       y = "Total Crashes",
+       fill = "Crash Type") +
+  theme_minimal()
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
