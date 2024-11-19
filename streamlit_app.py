@@ -5,6 +5,7 @@ from parse_csv import extract_csv_context, extract_csv_metadata
 
 # Remember to update to include these imports
 # Switch to SQLDatabaseChain to avoid REPL issues?
+# less dynamic
 from visualization import (
     create_bar_chart,
     create_scatter_plot,

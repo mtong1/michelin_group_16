@@ -1,5 +1,5 @@
 # parse_csv.py
-#making a very basic instantiation to test out querry_llama
+# making a very basic instantiation to test out querry_llama
 
 import pandas as pd
 
