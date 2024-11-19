@@ -1,37 +1,83 @@
+import pandas as pd
 import streamlit as st
-from parse_csv import parse_csv
-from query_llama import initialize_llama_model, query_llama_for_visualization
-from visualization import generate_visualization
-import sys
-print("Python executable:", sys.executable)
-print("Python version:", sys.version)
+from query_llama import query_llama_with_dataframe, query_llama_with_sql
+from parse_csv import extract_csv_context, extract_csv_metadata
 
-st.title("Data Query Tool")
+# Remember to update to include these imports
+# Switch to SQLDatabaseChain to avoid REPL issues?
+from visualization import (
+    create_bar_chart,
+    create_scatter_plot,
+    create_histogram,
+    create_box_plot,
+)
 
-# File uploader in Streamlit to select a CSV file
-uploaded_file = st.file_uploader("Choose a CSV file")
+# title
+st.title("CSV Analysis and Visualization Tool")
 
-if uploaded_file:
-    # Step 1: Parse the CSV
-    parsed_data, data_df = parse_csv(uploaded_file)
+# CSV upload here 
+uploaded_files = st.sidebar.file_uploader("Upload your CSV files", type=["csv"], accept_multiple_files=True)
 
-    if parsed_data:
-        # Step 2: Initialize the Llama model
-        model = initialize_llama_model()
+if uploaded_files:
+    try:
+        # Read uploaded files into DataFrames
+        dataframes = {file.name: pd.read_csv(file) for file in uploaded_files}
+    except Exception as e:
+        st.error(f"Error loading files: {e}")
+        st.stop()
 
-        # Step 3: User can enter a question and generate visualization type suggestion
-        user_question = st.text_input("Ask a question about the data:")
-        if st.button("Submit") and user_question:
-            visualization_type = query_llama_for_visualization(parsed_data, model)
-            #Outputting type suggestion onto Streamlit to make it easier to see what model is thinking
-            #Can always get rid of later
-            st.write(f"Suggested Visualization Type: {visualization_type}")
+    # For file select
+    file_options = ["All Files"] + list(dataframes.keys())
+    selected_option = st.selectbox("Select a file for analysis:", file_options)
 
-            # Step 4: Generate and display the visualization
-            st.write("Generating Visualization...")
-            generate_visualization(data_df, visualization_type)
-        else:
-            st.warning("Please enter a question to proceed.")
+    if selected_option == "All Files":
+        try:
+            combined_df = pd.concat(dataframes.values(), ignore_index=True)  # Combine dataframes from the multiple CSVs
+            st.write("### Combined Data Preview")
+            st.write(combined_df.head())
+
+            metadata = extract_csv_metadata(combined_df)  # Extract metadata (look to parse_csv)
+            st.write("### Data Summary: Combined Metadata")
+            st.write(metadata)
+
+            user_query = st.text_input("What would you like to know about the data?")
+            if user_query:
+                # Future: Need to get rid of all of this bc unrealistic to expect user to actuallu say they want a SQL querry
+                if "SQL" in user_query:  # Example SQL prompter
+                    response = query_llama_with_sql(user_query, combined_df)
+                else:
+                    response = query_llama_with_dataframe(user_query, combined_df)
+                st.write("### Query Result")
+                st.write(response)
+        except Exception as e:
+            st.error(f"Error processing combined data: {e}")
     else:
-        st.error("Could not parse the CSV file. Please check the format.")
+        try:
+            selected_df = dataframes[selected_option]
+            st.write(f"### File Preview: {selected_option}")
+            st.write(selected_df.head())
+
+            metadata = extract_csv_metadata(selected_df)  # Extract metadata
+            st.write("### File Metadata")
+            st.write(metadata)
+
+            user_query = st.text_input(f"What do you want to know about {selected_option}?")
+            if user_query:
+                # Future: Need to get rid of all of this bc unrealistic to expect user to actuallu say they want a SQL querry
+                # This is the same issue as above
+                # Would it be fixed with SQLDatabaseChain?
+                if "SQL" in user_query:  # Example trigger for SQL-specific queries
+                    response = query_llama_with_sql(user_query, selected_df)
+                else:
+                    response = query_llama_with_dataframe(user_query, selected_df)
+                st.write("### Query Result")
+                st.write(response)
+        except Exception as e:
+            st.error(f"Error processing selected file: {e}")
+
+else:
+    st.info("Please upload your CSV file(s) to proceed.")
+
+
+
 

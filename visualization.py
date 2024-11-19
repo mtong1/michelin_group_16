@@ -1,36 +1,50 @@
-# visualization.py
 import matplotlib.pyplot as plt
-import geopandas as gpd
+import seaborn as sns
 
-def generate_visualization(data, visualization_type):
-    """Generate a visualization based on the type provided."""
-    if visualization_type == "map":
-        # Example: Plot data points on a map
-        plot_map(data)
-    elif visualization_type == "bar chart":
-        # Example: Generate a bar chart
-        plot_bar_chart(data)
-    elif visualization_type == "scatter plot":
-        # Example: Generate a scatter plot
-        plot_scatter(data)
-    else:
-        print("Visualization type not recognized")
-
-def plot_map(data):
-    """Generate a basic map plot."""
-    # Assuming `data` has 'latitude' and 'longitude' columns
-    gdf = gpd.GeoDataFrame(data, geometry=gpd.points_from_xy(data.longitude, data.latitude))
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    ax = world.plot()
-    gdf.plot(ax=ax, color="red", markersize=5)
+# Creating a bar chart for the specified column
+def create_bar_chart(df, column):
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in DataFrame.")
+    plt.figure(figsize=(10, 6))
+    df[column].value_counts().plot(kind="bar", color="skyblue")
+    plt.title(f"Bar Chart for {column}")
+    plt.xlabel(column)
+    plt.ylabel("Frequency")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     plt.show()
 
-def plot_bar_chart(data):
-    """Generate a basic bar chart."""
-    data['some_category'].value_counts().plot(kind='bar')
+# Creating a scatter plot for specified x and y columns
+def create_scatter_plot(df, x_column, y_column):
+    if x_column not in df.columns or y_column not in df.columns:
+        raise ValueError(f"Columns '{x_column}' or '{y_column}' not found in DataFrame.")
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df, x=x_column, y=y_column)
+    plt.title(f"Scatter Plot: {x_column} vs {y_column}")
+    plt.xlabel(x_column)
+    plt.ylabel(y_column)
+    plt.tight_layout()
     plt.show()
 
-def plot_scatter(data):
-    """Generate a scatter plot."""
-    data.plot(kind='scatter', x='x_column', y='y_column')
+# Createing a histogram for specified column
+def create_histogram(df, column, bins=10):
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in DataFrame.")
+    plt.figure(figsize=(10, 6))
+    df[column].hist(bins=bins, color="pink", edgecolor="black")
+    plt.title(f"Histogram for {column}")
+    plt.xlabel(column)
+    plt.ylabel("Frequency")
+    plt.tight_layout()
+    plt.show()
+
+# Creating a box plot for the column
+def create_box_plot(df, column):
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in DataFrame.")
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=df, y=column)
+    plt.title(f"Box Plot for {column}")
+    plt.ylabel(column)
+    plt.tight_layout()
     plt.show()

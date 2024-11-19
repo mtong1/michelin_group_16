@@ -1,38 +1,39 @@
 #query_llama.py
 #Built to replace modelSetUp.py
 
-from langchain.llms import Ollama
-from langchain.prompts import ChatPromptTemplate
+from langchain_experimental.agents import create_pandas_dataframe_agent
+from langchain_ollama import ChatOllama
+from sqlalchemy import create_engine
+import pandas as pd
 
-#To Do: 
-    # extract_keywords_from_question 
-        #- need keyword_prompt to pass to model
-        #- Format prompt
-        #toString --> list --> .split(",")
+# Creates a Pandas agent for querying a DataFrame with an LLM
+def create_pandas_agent(df):
+    llama_model = ChatOllama(model="llama3.2", temperature=0)
+    return create_pandas_dataframe_agent(llama_model, df, verbose=True)
 
-def initialize_llama_model(model_name="llama3.2:latest"):
-    #Initializing the Llama model using Ollama.
-    return Ollama(model=model_name)
+# Converts a DataFrame into a temporary SQLite database
+def create_temp_sql_db(dataframe):
+    engine = create_engine("sqlite:///:memory:")
+    dataframe.to_sql("temp_table", engine, index=False, if_exists="replace")
+    return engine
 
-def query_llama_for_visualization(parsed_data, model):
-    #Sending the parsed data to the Llama model
-    #determine visualization type
-    prompt_template = """
-    You are an AI that analyzes geospatial data and recommends visualizations. Here is a data summary:
+# Handles natural language SQL queries on a DataFrame
+def query_llama_with_sql(input_query, dataframe):
+    try:
+        engine = create_temp_sql_db(dataframe)  # Convert DataFrame to SQLite DB
+        llama_model = ChatOllama(model="llama3.2", temperature=0)
+        sql_query = llama_model.chat(input_query)["query"]  # Generate SQL query
+        with engine.connect() as connection:
+            result = connection.execute(sql_query).fetchall()  # Execute query
+        return result
+    except Exception as e:
+        raise ValueError(f"Error querying SQL database: {e}")
 
-    {data}
-
-    Based on the data, what type of visualization would best represent this information? Suggest either a map, bar chart, or scatter plot.
-    """
-    # Using ChatPromptTemplate to format the prompt
-    prompt = ChatPromptTemplate.from_template(prompt_template)
-    
-    # Formating the prompt with the data
-    formatted_prompt = prompt.format(data=parsed_data)
-    
-    # formatted prompt --> model
-    response = model(formatted_prompt)
-    
-    # Extracting the response text and interpret it as a visualization type
-    visualization_type = response.strip().lower()
-    return visualization_type
+# Queries a DataFrame directly using a Pandas agent
+def query_llama_with_dataframe(query, df):
+    try:
+        agent = create_pandas_agent(df)  # Create agent
+        response = agent.run(query)  # Run query
+        return response
+    except Exception as e:
+        raise ValueError(f"Error querying DataFrame: {e}")
