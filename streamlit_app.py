@@ -16,15 +16,13 @@ def pad_prompt(df, user_question: str, user_context:str  ):
             """
     return full_prompt
 
-
-
 llama_model = ChatOllama(model="llama3.2", temperature=1)
 
 st.title('Road Safety CSV')
 
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"], accept_multiple_files=True)
-user_context = st.text_input("Provide some context for the uploaded CSV(s)", placeholder="E.g., This dataset contains accident statistics for 2023...")
-user_question= st.text_input("Enter Question", placeholder="What is the average speed of vehicles involved in accidents?")
+user_context = st.text_area("Provide some context for the uploaded CSV(s)", placeholder="E.g., This dataset contains accident statistics for 2023...")
+user_question= st.text_area("Enter Question", placeholder="What is the average speed of vehicles involved in accidents?")
 
 if uploaded_file:
 
