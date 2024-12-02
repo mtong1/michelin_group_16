@@ -3,6 +3,21 @@ import pandas as pd
 from langchain_ollama import ChatOllama
 from langchain_experimental.agents import create_pandas_dataframe_agent
 
+
+def pad_prompt(df, user_question: str, user_context:str  ):
+    full_prompt = f"""
+            The dataset has {df.shape[0]} rows and {df.shape[1]} columns.
+            Columns include: {', '.join(df.columns)}.
+
+            Context: {user_context}
+
+            Using the context, answer the question: {user_question}. You do not need to ouput any code unless specified, only output the answer.
+            Format the answer as plain text.
+            """
+    return full_prompt
+
+
+
 llama_model = ChatOllama(model="llama3.2", temperature=1)
 
 st.title('Road Safety CSV')
@@ -38,18 +53,8 @@ if uploaded_file:
         elif not user_question:
             st.warning("Please enter a question to ask about the CSV dataset.")
         else:
-            dataset_info = f"The dataset has {data.shape[0]} rows and {data.shape[1]} columns. " \
-            f"Columns include: {', '.join(data.columns)}. Here is the user-provided context about this CSV: {user_context}"
 
-            full_prompt = f"""
-            The dataset has {data.shape[0]} rows and {data.shape[1]} columns.
-            Columns include: {', '.join(data.columns)}.
-
-            Context: {user_context}
-
-            Using the context, answer the question: {user_question}. You do not need to ouput any code unless specified, only output the answer.
-            Format the answer as plain text.
-            """
+            full_prompt = pad_prompt(data, user_question, user_context)
 
             agent = create_pandas_dataframe_agent(
                 llm = llama_model,
