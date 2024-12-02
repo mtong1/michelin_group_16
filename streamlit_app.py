@@ -11,8 +11,6 @@ uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"], a
 user_context = st.text_input("Provide some context for the uploaded CSV(s)", placeholder="E.g., This dataset contains accident statistics for 2023...")
 user_question= st.text_input("Enter Question", placeholder="What is the average speed of vehicles involved in accidents?")
 
-
-
 if uploaded_file:
 
     #get rid of the None values in the uploaded files so there is no pd.read_csv error
@@ -33,8 +31,10 @@ if uploaded_file:
         st.write("Here's a preview of your data:")
         st.write(data.head())
 
+        #make sure user provides context
         if not user_context:
             st.warning("Please provide context for the CSV dataset.")
+        #make sure user provides a question
         elif not user_question:
             st.warning("Please enter a question to ask about the CSV dataset.")
         else:
@@ -67,7 +67,9 @@ if uploaded_file:
                     processing_placeholder = st.empty()  # placeholder to show the processing message
                     processing_placeholder.write("Processing your request...")
                     try:
+                        #using run instead of invoking gets better results
                         response = agent.run(full_prompt)
+                        #make the processing your request message disappear
                         processing_placeholder.empty()
                         st.write("Response:")
                         st.success(response)
