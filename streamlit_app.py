@@ -45,7 +45,7 @@ if uploaded_file:
         st.write("Here's a preview of your data:")
         st.write(data.head())
         metadata = extract_csv_metadata(data)  # Extract metadata (look to parse_csv)
-        st.write("### Data Summary: Combined Metadata")
+        st.write("### Data Summary:  Metadata")
         st.write(metadata)
 
         #make sure user provides context
