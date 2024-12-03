@@ -1,7 +1,12 @@
 streamlit
 openai
 langchain
-langchain-experimental
+langchain_groq
+langchain_core
+langchain_experimental
+tabulate
+ollama
+langchain_community
 pandas
 matplotlib
 geopandas
